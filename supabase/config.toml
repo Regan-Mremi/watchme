@@ -1,0 +1,6 @@
+project_id = "moviebox"
+
+# The payment provider calls this endpoint without a Supabase JWT.
+# It is protected by an HMAC signature check inside the function instead.
+[functions.payment-webhook]
+verify_jwt = false

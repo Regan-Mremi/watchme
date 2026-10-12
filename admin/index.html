@@ -1,0 +1,777 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MovieBox Admin</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg:#0b1020;
+  --panel:#131b30;
+  --panel2:#19233b;
+  --line:#293653;
+  --text:#f4f7ff;
+  --muted:#9caac5;
+  --accent:#8b5cf6;
+  --accent2:#6d45df;
+  --green:#34d399;
+  --red:#fb7185;
+  --blue:#60a5fa;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:radial-gradient(ellipse at top,#172344 0%,var(--bg) 58%);
+  color:var(--text);
+  font:15px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  min-height:100vh;
+}
+main{width:min(1120px,100%);margin:auto;padding:24px}
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;margin-bottom:26px
+}
+.brand{display:flex;align-items:center;gap:13px}
+.logo{
+  width:48px;height:48px;border-radius:15px;
+  display:grid;place-items:center;
+  background:linear-gradient(135deg,#a78bfa,#6d28d9);
+  font-size:25px;box-shadow:0 8px 30px #6d28d944
+}
+h1{font-size:clamp(22px,4vw,30px);margin:0;letter-spacing:-.7px}
+h2{font-size:18px;margin:0 0 5px}
+h3{font-size:15px;margin:0}
+.subtitle,.muted{color:var(--muted);font-size:13px}
+.card{
+  background:linear-gradient(145deg,#151e34f5,#10182bf5);
+  border:1px solid var(--line);border-radius:20px;
+  padding:22px;margin:18px 0;
+  box-shadow:0 14px 38px #00000015
+}
+.card-head{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;margin-bottom:18px
+}
+.eyebrow{
+  color:#b9a4ff;font-size:11px;font-weight:800;
+  letter-spacing:1.7px;text-transform:uppercase;margin-bottom:5px
+}
+label{display:block;color:#c1cbe0;font-size:13px;margin:15px 0 7px}
+input,select,textarea{
+  display:block;width:100%;min-width:0;
+  border:1px solid var(--line);border-radius:11px;
+  background:#0c1427;color:var(--text);
+  padding:12px 13px;font:inherit;outline:none
+}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--accent);box-shadow:0 0 0 3px #8b5cf622
+}
+input[type=checkbox]{width:auto;display:inline-block;accent-color:var(--accent)}
+input[type=file]{font-size:13px}
+textarea{resize:vertical}
+.row{display:flex;gap:14px}
+.row>*{flex:1;min-width:0}
+button{
+  border:0;border-radius:11px;padding:11px 16px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;font:inherit;font-weight:700;cursor:pointer;
+  transition:transform .15s,opacity .15s
+}
+button:hover:not(:disabled){transform:translateY(-1px)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.ghost{
+  background:#1b2741;border:1px solid #344363;color:#e7ecfb
+}
+button.danger{background:#3a1d30;border:1px solid #78354d;color:#ffc0ce}
+button.small{font-size:12px;padding:8px 11px;border-radius:9px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.checkline{display:flex;align-items:center;gap:9px;margin-top:17px;color:#d6def0}
+.movie-list{display:grid;gap:10px}
+.movie{
+  display:grid;grid-template-columns:58px minmax(0,1fr) auto;
+  align-items:center;gap:13px;padding:13px;
+  background:#0d1528;border:1px solid #26334f;border-radius:14px
+}
+.poster{
+  width:58px;height:78px;object-fit:cover;border-radius:9px;
+  background:#202b45;border:1px solid #34415e
+}
+.movie-title{font-weight:750;overflow-wrap:anywhere}
+.movie-meta{font-size:12px;color:var(--muted);margin-top:5px}
+.badge{
+  display:inline-flex;align-items:center;gap:5px;
+  border:1px solid #394663;border-radius:99px;padding:4px 9px;
+  font-size:11px;font-weight:750;white-space:nowrap
+}
+.badge.live{color:var(--green);border-color:#276d59;background:#10372f}
+.badge.draft{color:#c2cbe0}
+.price{color:#c4b5fd;font-weight:800;margin-top:5px;font-size:13px}
+.msg{margin-top:12px;min-height:20px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}
+.msg.err{color:var(--red)}
+.msg.ok{color:var(--green)}
+.msg.info{color:#93c5fd}
+progress{width:100%;height:12px;accent-color:var(--accent);margin-top:14px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:20px}
+.stat{background:#151f35;border:1px solid var(--line);padding:16px;border-radius:15px}
+.stat strong{display:block;font-size:25px;margin-top:5px}
+.empty{padding:25px;text-align:center;border:1px dashed #354361;border-radius:13px;color:var(--muted)}
+.note{background:#171f39;border:1px solid #333e61;border-radius:12px;padding:12px;color:#bdc9e3;font-size:12px;margin-top:13px}
+.form-buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+[hidden]{display:none!important}
+footer{text-align:center;color:#6f7e9d;font-size:12px;padding:18px}
+@media(max-width:640px){
+  main{padding:14px}
+  .card{padding:16px;border-radius:16px}
+  .row{flex-direction:column;gap:0}
+  .movie{grid-template-columns:48px minmax(0,1fr)}
+  .poster{width:48px;height:66px}
+  .movie .actions{grid-column:1/-1}
+  .stats{gap:8px}
+  .stat{padding:12px}
+  .stat strong{font-size:21px}
+}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="brand">
+    <div class="logo">🎬</div>
+    <div>
+      <h1>MovieBox Admin</h1>
+      <div class="subtitle">Manage your movies and episodes</div>
+    </div>
+  </div>
+  <button id="signout" class="ghost" hidden>Sign out</button>
+</header>
+
+<section id="login" class="card" hidden>
+  <div class="eyebrow">Welcome back</div>
+  <h2>Sign in to your dashboard</h2>
+  <p class="muted">Use your MovieBox administrator account.</p>
+  <form id="loginForm">
+    <label for="email">Email address</label>
+    <input id="email" type="email" autocomplete="username" required>
+    <label for="password">Password</label>
+    <input id="password" type="password" autocomplete="current-password" required>
+    <p><button type="submit" id="loginBtn">Sign in</button></p>
+    <div id="loginMsg" class="msg"></div>
+  </form>
+</section>
+
+<section id="denied" class="card" hidden>
+  <h2>Administrator access required</h2>
+  <p class="muted">Your account is signed in but is not registered as an administrator in <code>public.app_admins</code>.</p>
+  <p class="muted">Ask the project owner to add your Auth user ID to that table, then sign in again.</p>
+  <button id="deniedSignout" class="ghost">Sign out</button>
+</section>
+
+<div id="app" hidden>
+  <div class="stats">
+    <div class="stat"><span class="muted">Total movies</span><strong id="totalMovies">0</strong></div>
+    <div class="stat"><span class="muted">Published</span><strong id="publishedMovies">0</strong></div>
+    <div class="stat"><span class="muted">Drafts</span><strong id="draftMovies">0</strong></div>
+  </div>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <div class="eyebrow">Your library</div>
+        <h2>Movies</h2>
+        <div class="muted">Edit details, prices and publication status.</div>
+      </div>
+      <button class="ghost small" id="refreshMovies" type="button">↻ Refresh</button>
+    </div>
+    <div id="movieList" class="movie-list"></div>
+    <div id="movieEmpty" class="empty" hidden>No movies yet. Add your first movie below.</div>
+    <div id="listMsg" class="msg"></div>
+  </section>
+
+  <section class="card" id="movieEditor">
+    <div class="card-head">
+      <div>
+        <div class="eyebrow">Movie details</div>
+        <h2 id="movieFormHeading">Add a movie</h2>
+        <div class="muted">Enter the details and choose whether to publish.</div>
+      </div>
+      <span class="badge" id="editBadge" hidden>EDITING</span>
+    </div>
+    <form id="movieForm">
+      <input id="mId" type="hidden">
+
+      <label for="mTitle">Movie title *</label>
+      <input id="mTitle" maxlength="200" required placeholder="Enter movie title">
+
+      <label for="mDesc">Description</label>
+      <textarea id="mDesc" rows="3" placeholder="Write a short movie description"></textarea>
+
+      <div class="row">
+        <div>
+          <label for="mGenre">Genre</label>
+          <input id="mGenre" placeholder="Action, Drama, Comedy">
+        </div>
+        <div>
+          <label for="mYear">Release year</label>
+          <input id="mYear" type="number" min="1900" max="2100" placeholder="2026">
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="mPrice">Movie price (TZS)</label>
+          <input id="mPrice" type="number" min="0" step="1" placeholder="e.g. 2000">
+        </div>
+        <div>
+          <label for="mFreeEpisodes">Free episodes</label>
+          <input id="mFreeEpisodes" type="number" min="0" step="1" value="3">
+        </div>
+      </div>
+
+      <label for="mPosterUrl">Poster image URL (optional)</label>
+      <input id="mPosterUrl" type="url" placeholder="https://example.com/poster.jpg">
+      <div class="muted">Use a direct image URL, or upload an image below. If you select a file, it takes priority over the URL.</div>
+
+      <label for="mPoster">Upload poster image (optional)</label>
+      <input id="mPoster" type="file" accept="image/*">
+
+      <label class="checkline" for="mPublished">
+        <input id="mPublished" type="checkbox">
+        Publish movie — make it visible in the app
+      </label>
+
+      <div class="form-buttons">
+        <button type="submit" id="movieSaveBtn">＋ Add movie</button>
+        <button type="button" class="ghost" id="cancelEdit" hidden>Cancel editing</button>
+      </div>
+      <div id="movieMsg" class="msg"></div>
+    </form>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <div class="eyebrow">Video library</div>
+        <h2>Upload an episode</h2>
+        <div class="muted">Large video uploads use resumable TUS transfer.</div>
+      </div>
+    </div>
+    <form id="episodeForm">
+      <label for="eMovie">Choose movie *</label>
+      <select id="eMovie" required>
+        <option value="">Add a movie first</option>
+      </select>
+
+      <div class="row">
+        <div>
+          <label for="eNumber">Episode number *</label>
+          <input id="eNumber" type="number" min="1" step="1" required>
+        </div>
+        <div>
+          <label for="eTitle">Episode title (optional)</label>
+          <input id="eTitle" placeholder="Episode title">
+        </div>
+      </div>
+
+      <label for="eFile">Video file *</label>
+      <input id="eFile" type="file" accept="video/*" required>
+
+      <div class="note">Keep this tab open until the upload finishes. Your existing app logic controls which episodes are free and which require payment or a subscription.</div>
+
+      <progress id="eProgress" value="0" max="1" hidden></progress>
+      <div id="episodeMsg" class="msg"></div>
+      <p><button id="eSubmit" type="submit">↑ Upload episode</button></p>
+    </form>
+  </section>
+</div>
+
+<footer>MovieBox Admin · Secure content management</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/tus-js-client@4/dist/tus.min.js"></script>
+<script>
+const SUPABASE_URL = 'https://nrtjkwwwpbcyjutgxscc.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_gxuisLcLHyCpZhWaMfCGHA_uJhMzWpa';
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const $ = id => document.getElementById(id);
+let uploading = false;
+let moviesCache = [];
+
+function say(el, message, kind) {
+  el.textContent = message || '';
+  el.className = 'msg' + (kind ? ' ' + kind : '');
+}
+
+function show(which) {
+  $('login').hidden = which !== 'login';
+  $('denied').hidden = which !== 'denied';
+  $('app').hidden = which !== 'app';
+  $('signout').hidden = which === 'login';
+}
+
+function money(value) {
+  const n = Number(value);
+  return Number.isFinite(n)
+    ? 'TZS ' + new Intl.NumberFormat('en-TZ', {maximumFractionDigits:0}).format(n)
+    : 'Price not set';
+}
+
+// Admin authentication: user must have a row in public.app_admins.
+async function isAdmin(userId) {
+  const {data, error} = await sb
+    .from('app_admins')
+    .select('user_id')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error('Could not verify admin access: ' + error.message);
+  }
+  return !!data;
+}
+
+async function route() {
+  const {data, error} = await sb.auth.getSession();
+  if (error || !data.session) {
+    show('login');
+    return;
+  }
+
+  try {
+    const admin = await isAdmin(data.session.user.id);
+    if (!admin) {
+      show('denied');
+      return;
+    }
+    show('app');
+    await loadMovies();
+  } catch (err) {
+    show('login');
+    say($('loginMsg'), err.message || String(err), 'err');
+  }
+}
+
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = $('loginBtn');
+  btn.disabled = true;
+  say($('loginMsg'), 'Signing in...', 'info');
+
+  try {
+    const {error} = await sb.auth.signInWithPassword({
+      email: $('email').value.trim(),
+      password: $('password').value
+    });
+    if (error) throw error;
+    say($('loginMsg'), '');
+    await route();
+  } catch (err) {
+    say($('loginMsg'), err.message || String(err), 'err');
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+async function signOut() {
+  await sb.auth.signOut();
+  show('login');
+}
+$('signout').addEventListener('click', signOut);
+$('deniedSignout').addEventListener('click', signOut);
+
+// Load movies and episode counts.
+async function loadMovies() {
+  say($('listMsg'), 'Loading movies...', 'info');
+
+  const {data, error} = await sb
+    .from('movies')
+    .select('id,title,description,poster_url,genre,release_year,price,free_episodes,published,created_at,episodes(count)')
+    .order('created_at', {ascending:false});
+
+  if (error) {
+    say($('listMsg'), 'Could not load movies: ' + error.message, 'err');
+    return;
+  }
+
+  moviesCache = data || [];
+  $('totalMovies').textContent = moviesCache.length;
+  $('publishedMovies').textContent = moviesCache.filter(m => m.published).length;
+  $('draftMovies').textContent = moviesCache.filter(m => !m.published).length;
+
+  const list = $('movieList');
+  list.replaceChildren();
+  $('movieEmpty').hidden = moviesCache.length > 0;
+
+  const select = $('eMovie');
+  const previous = select.value;
+  select.replaceChildren();
+
+  if (!moviesCache.length) {
+    const opt = document.createElement('option');
+    opt.value = '';
+    opt.textContent = 'Add a movie first';
+    select.append(opt);
+  }
+
+  for (const m of moviesCache) {
+    const count = m.episodes?.[0]?.count ?? 0;
+    const row = document.createElement('article');
+    row.className = 'movie';
+
+    const poster = document.createElement('img');
+    poster.className = 'poster';
+    poster.alt = '';
+    poster.loading = 'lazy';
+    poster.src = m.poster_url || '';
+    poster.onerror = () => { poster.style.visibility = 'hidden'; };
+
+    const info = document.createElement('div');
+    const title = document.createElement('div');
+    title.className = 'movie-title';
+    title.textContent = m.title || 'Untitled movie';
+
+    const meta = document.createElement('div');
+    meta.className = 'movie-meta';
+    meta.textContent = `${count} episode${count === 1 ? '' : 's'} · ${m.release_year || 'Year not set'} · ${m.genre || 'Genre not set'}`;
+
+    const price = document.createElement('div');
+    price.className = 'price';
+    price.textContent = m.price == null ? 'Price not set' : money(m.price);
+
+    info.append(title, meta, price);
+
+    const actions = document.createElement('div');
+    actions.className = 'actions';
+
+    const badge = document.createElement('span');
+    badge.className = 'badge ' + (m.published ? 'live' : 'draft');
+    badge.textContent = m.published ? '● Published' : 'Draft';
+
+    const edit = document.createElement('button');
+    edit.type = 'button';
+    edit.className = 'ghost small';
+    edit.textContent = 'Edit';
+    edit.addEventListener('click', () => beginEdit(m.id));
+
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'ghost small';
+    toggle.textContent = m.published ? 'Unpublish' : 'Publish';
+    toggle.addEventListener('click', async () => {
+      toggle.disabled = true;
+      const {error: updateError} = await sb.from('movies')
+        .update({published:!m.published}).eq('id',m.id);
+      if (updateError) alert('Could not change publication status: ' + updateError.message);
+      await loadMovies();
+    });
+
+    actions.append(badge, edit, toggle);
+    row.append(poster, info, actions);
+    list.append(row);
+
+    const opt = document.createElement('option');
+    opt.value = m.id;
+    opt.textContent = m.title;
+    select.append(opt);
+  }
+
+  if (previous && moviesCache.some(m => m.id === previous)) {
+    select.value = previous;
+  }
+  say($('listMsg'), '');
+  await suggestNumber();
+}
+
+$('refreshMovies').addEventListener('click', loadMovies);
+
+// Populate the editor for an existing movie.
+function beginEdit(id) {
+  const m = moviesCache.find(item => item.id === id);
+  if (!m) return;
+
+  $('mId').value = m.id;
+  $('mTitle').value = m.title || '';
+  $('mDesc').value = m.description || '';
+  $('mGenre').value = m.genre || '';
+  $('mYear').value = m.release_year ?? '';
+  $('mPrice').value = m.price ?? '';
+  $('mFreeEpisodes').value = m.free_episodes ?? 3;
+  $('mPosterUrl').value = m.poster_url || '';
+  $('mPoster').value = '';
+  $('mPublished').checked = !!m.published;
+
+  $('movieFormHeading').textContent = 'Edit movie';
+  $('movieSaveBtn').textContent = 'Save changes';
+  $('editBadge').hidden = false;
+  $('cancelEdit').hidden = false;
+  say($('movieMsg'), 'Editing: ' + m.title, 'info');
+  $('movieEditor').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function resetMovieForm() {
+  $('movieForm').reset();
+  $('mId').value = '';
+  $('mFreeEpisodes').value = 3;
+  $('movieFormHeading').textContent = 'Add a movie';
+  $('movieSaveBtn').textContent = '＋ Add movie';
+  $('editBadge').hidden = true;
+  $('cancelEdit').hidden = true;
+  say($('movieMsg'), '');
+}
+$('cancelEdit').addEventListener('click', resetMovieForm);
+
+// Add or update movie. Poster files are uploaded to the existing "posters" bucket.
+$('movieForm').addEventListener('submit', async e => {
+  e.preventDefault();
+
+  const btn = $('movieSaveBtn');
+  const msg = $('movieMsg');
+  btn.disabled = true;
+
+  try {
+    say(msg, 'Saving movie...', 'info');
+
+    const id = $('mId').value || crypto.randomUUID();
+    const poster = $('mPoster').files[0];
+    let posterUrl = $('mPosterUrl').value.trim() || null;
+
+    if (poster) {
+      const ext = (poster.name.split('.').pop() || 'jpg')
+        .toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+      const path = id + '/poster.' + ext;
+
+      const {error: uploadError} = await sb.storage.from('posters')
+        .upload(path, poster, {
+          contentType:poster.type || 'image/jpeg',
+          upsert:true
+        });
+      if (uploadError) throw uploadError;
+
+      posterUrl = sb.storage.from('posters').getPublicUrl(path).data.publicUrl;
+    }
+
+    const yearRaw = $('mYear').value;
+    const priceRaw = $('mPrice').value;
+    const freeRaw = $('mFreeEpisodes').value;
+    const year = yearRaw ? Number(yearRaw) : null;
+    const price = priceRaw === '' ? null : Number(priceRaw);
+    const freeEpisodes = freeRaw === '' ? 3 : Number(freeRaw);
+
+    if (price !== null && (!Number.isSafeInteger(price) || price < 0)) {
+      throw new Error('Price must be a whole number of TZS, zero or greater.');
+    }
+    if (!Number.isInteger(freeEpisodes) || freeEpisodes < 0) {
+      throw new Error('Free episodes must be a whole number, zero or greater.');
+    }
+
+    const movie = {
+      title:$('mTitle').value.trim(),
+      description:$('mDesc').value.trim() || null,
+      genre:$('mGenre').value.trim() || null,
+      release_year:Number.isInteger(year) ? year : null,
+      poster_url:posterUrl,
+      price,
+      free_episodes:freeEpisodes,
+      published:$('mPublished').checked
+    };
+
+    if (!movie.title) throw new Error('Movie title is required.');
+
+    let result;
+    if ($('mId').value) {
+      result = await sb.from('movies').update(movie).eq('id',id);
+    } else {
+      result = await sb.from('movies').insert({id,...movie});
+    }
+    if (result.error) throw result.error;
+
+    resetMovieForm();
+    say(msg, 'Movie saved successfully.', 'ok');
+    await loadMovies();
+    $('eMovie').value = id;
+    await suggestNumber();
+  } catch (err) {
+    say(msg, err.message || String(err), 'err');
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// Suggest the next episode number for the selected movie.
+async function suggestNumber() {
+  const movieId = $('eMovie').value;
+  if (!movieId) {
+    $('eNumber').value = '';
+    return;
+  }
+
+  const {data, error} = await sb.from('episodes')
+    .select('episode_number')
+    .eq('movie_id',movieId)
+    .order('episode_number',{ascending:false})
+    .limit(1);
+
+  if (error) {
+    say($('episodeMsg'), 'Could not check episode numbers: ' + error.message, 'err');
+    return;
+  }
+
+  $('eNumber').value = data && data.length
+    ? Number(data[0].episode_number) + 1
+    : 1;
+}
+$('eMovie').addEventListener('change', suggestNumber);
+
+function videoDuration(file) {
+  return new Promise(resolve => {
+    const video = document.createElement('video');
+    const url = URL.createObjectURL(file);
+    video.preload = 'metadata';
+
+    video.onloadedmetadata = () => {
+      const duration = video.duration;
+      URL.revokeObjectURL(url);
+      video.remove();
+      resolve(Number.isFinite(duration) && duration > 0 ? Math.round(duration) : null);
+    };
+    video.onerror = () => {
+      URL.revokeObjectURL(url);
+      video.remove();
+      resolve(null);
+    };
+    video.src = url;
+  });
+}
+
+// Resumable upload to the existing Supabase "videos" bucket using TUS.
+async function uploadVideo(file, objectName, onProgress) {
+  const projectRef = new URL(SUPABASE_URL).hostname.split('.')[0];
+  const {data:sessionData,error:sessionError} = await sb.auth.getSession();
+
+  if (sessionError) throw new Error('Could not get login session: ' + sessionError.message);
+  let session = sessionData.session;
+  if (!session) throw new Error('You are not signed in. Sign in again.');
+
+  const {data:refreshData,error:refreshError} = await sb.auth.refreshSession();
+  if (!refreshError && refreshData.session) session = refreshData.session;
+
+  const accessToken = session.access_token;
+  if (!accessToken) throw new Error('Missing login token. Sign out and sign in again.');
+
+  const endpoint = 'https://' + projectRef + '.storage.supabase.co/storage/v1/upload/resumable';
+
+  return new Promise((resolve,reject) => {
+    const upload = new tus.Upload(file,{
+      endpoint,
+      retryDelays:[0,3000,5000,10000,20000],
+      headers:{
+        apikey:SUPABASE_ANON_KEY,
+        Authorization:'Bearer ' + accessToken,
+        'x-upsert':'true'
+      },
+      chunkSize:6*1024*1024,
+      uploadDataDuringCreation:true,
+      removeFingerprintOnSuccess:true,
+      metadata:{
+        bucketName:'videos',
+        objectName,
+        contentType:file.type || 'video/mp4',
+        cacheControl:'3600'
+      },
+      onError:error => reject(error),
+      onProgress:(sent,total) => onProgress(total ? sent/total : 0),
+      onSuccess:() => resolve(upload)
+    });
+
+    upload.findPreviousUploads()
+      .then(previous => {
+        if (previous.length) upload.resumeFromPreviousUpload(previous[0]);
+        upload.start();
+      })
+      .catch(reject);
+  });
+}
+
+$('episodeForm').addEventListener('submit', async e => {
+  e.preventDefault();
+
+  const msg = $('episodeMsg');
+  const bar = $('eProgress');
+  const btn = $('eSubmit');
+  const movieId = $('eMovie').value;
+  const number = Number.parseInt($('eNumber').value,10);
+  const file = $('eFile').files[0];
+
+  if (!movieId || !Number.isInteger(number) || number < 1 || !file) {
+    return say(msg,'Choose a movie, valid episode number and video file.','err');
+  }
+
+  btn.disabled = true;
+  uploading = true;
+  bar.hidden = false;
+  bar.value = 0;
+
+  try {
+    const duration = await videoDuration(file);
+    const ext = (file.name.includes('.') ? file.name.split('.').pop() : 'mp4')
+      .toLowerCase().replace(/[^a-z0-9]/g,'') || 'mp4';
+    const objectName = movieId + '/' + number + '.' + ext;
+
+    say(msg,'Preparing video upload...','info');
+    await uploadVideo(file,objectName,p => {
+      bar.value = p;
+      say(msg,'Uploading video... ' + Math.round(p*100) + '%','info');
+    });
+
+    say(msg,'Saving episode details...','info');
+
+    const ep = await sb.from('episodes').upsert({
+      movie_id:movieId,
+      episode_number:number,
+      title:$('eTitle').value.trim() || null,
+      duration_seconds:duration
+    },{onConflict:'movie_id,episode_number'})
+    .select('id').single();
+
+    if (ep.error) throw ep.error;
+
+    const media = await sb.from('episode_media').upsert({
+      episode_id:ep.data.id,
+      video_path:objectName
+    },{onConflict:'episode_id'});
+
+    if (media.error) throw media.error;
+
+    say(msg,'Episode ' + number + ' uploaded successfully.','ok');
+    $('eFile').value = '';
+    $('eTitle').value = '';
+    await loadMovies();
+    $('eMovie').value = movieId;
+    await suggestNumber();
+  } catch (err) {
+    say(msg,'Upload failed: ' + (err.message || String(err)),'err');
+  } finally {
+    uploading = false;
+    btn.disabled = false;
+    bar.hidden = true;
+  }
+});
+
+window.addEventListener('beforeunload', ev => {
+  if (uploading) {
+    ev.preventDefault();
+    ev.returnValue = '';
+  }
+});
+
+sb.auth.onAuthStateChange(event => {
+  if (event === 'SIGNED_OUT') show('login');
+});
+
+route();
+</script>
+</body>
+</html>
